@@ -2,7 +2,7 @@ import sys
 from collections import OrderedDict
 
 
-def rating_lister(file_name):
+def rating_lister(file_name, add_rating=False):
     """Restaurant rating lister."""
 
     ordered_ratings = {}
@@ -13,8 +13,13 @@ def rating_lister(file_name):
             rating = line.rstrip().split(':')
             ordered_ratings[rating[0]] = rating[1]
 
-    user_ratings = add_ratings()
-    ordered_ratings[user_ratings[0]] = user_ratings[1]
+    if add_rating:
+
+        with open(file_name, 'a') as ratings:
+
+            user_ratings = add_ratings()
+            ordered_ratings[user_ratings[0]] = user_ratings[1]
+            ratings.write('\n%s' % ':'.join(user_ratings))
 
     return OrderedDict(sorted(ordered_ratings.items(), key=lambda t: t[0]))
 
@@ -37,5 +42,32 @@ def add_ratings():
             continue
 
 
-for restaurant, rating in rating_lister(sys.argv[1]).iteritems():
-    print '%s is rated at %s.' % (restaurant, rating)
+def main_loop():
+    """Main body loop and control flow."""
+
+    while True:
+
+        print """
+        Would you like to:
+        [S]ee restaurant ratings in alphabetical order
+        [A]dd a new restaurant rating
+        [Q]uit the program?
+        """
+
+        user_choice = raw_input(">> ")
+
+        if user_choice.upper() == 'Q':
+            sys.exit()
+        elif user_choice.upper() == 'S':
+            ratings = rating_lister(sys.argv[1])
+        elif user_choice.upper() == 'A':
+            ratings = rating_lister(sys.argv[1], True)
+        else:
+            continue
+
+        print '\b'
+        for restaurant, rating in ratings.iteritems():
+            print '%s is rated at %s.' % (restaurant, rating)
+
+
+main_loop()
